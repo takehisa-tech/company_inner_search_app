@@ -198,6 +198,74 @@ def recursive_file_check(path, docs_all):
         file_load(path, docs_all)
 
 
+def load_employee_csv(path):
+    """
+    社員名簿CSVを部署ごとに統合してドキュメント化
+
+    Args:
+        path: CSVファイルパス
+
+    Returns:
+        部署ごとに統合されたドキュメントのリスト
+    """
+    import csv
+    from langchain.schema import Document
+    
+    # CSVファイルを読み込み
+    with open(path, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    # 部署ごとに従業員情報をグループ化
+    department_dict = {}
+    for row in rows:
+        department = row.get("部署", "").strip()
+        if department:
+            if department not in department_dict:
+                department_dict[department] = []
+            department_dict[department].append(row)
+    
+    # 部署ごとにドキュメントを作成
+    docs = []
+    for department, employees in department_dict.items():
+        # 部署の従業員情報を整形したテキストを作成
+        content_lines = [f"【{department}の従業員一覧】\n"]
+        content_lines.append(f"{department}には{len(employees)}名の従業員が所属しています。\n")
+        
+        for emp in employees:
+            emp_info = (
+                f"\n社員ID: {emp.get('社員ID', '')}\n"
+                f"氏名: {emp.get('氏名(フルネーム)', emp.get('氏名（フルネーム）', ''))}\n"
+                f"性別: {emp.get('性別', '')}\n"
+                f"年齢: {emp.get('年齢', '')}歳\n"
+                f"メールアドレス: {emp.get('メールアドレス', '')}\n"
+                f"従業員区分: {emp.get('従業員区分', '')}\n"
+                f"入社日: {emp.get('入社日', '')}\n"
+                f"部署: {emp.get('部署', '')}\n"
+                f"役職: {emp.get('役職', '')}\n"
+                f"スキルセット: {emp.get('スキルセット', '')}\n"
+                f"保有資格: {emp.get('保有資格', '')}\n"
+                f"大学名: {emp.get('大学名', '')}\n"
+                f"学部・学科: {emp.get('学部・学科', '')}\n"
+            )
+            content_lines.append(emp_info)
+        
+        content = "".join(content_lines)
+        
+        # Documentオブジェクトを作成
+        doc = Document(
+            page_content=content,
+            metadata={
+                "source": path,
+                "department": department,
+                "employee_count": len(employees)
+            }
+        )
+        docs.append(doc)
+    
+    return docs
+
+
 def file_load(path, docs_all):
     """
     ファイル内のデータ読み込み
@@ -206,6 +274,8 @@ def file_load(path, docs_all):
         path: ファイルパス
         docs_all: データソースを格納する用のリスト
     """
+    logger = logging.getLogger(ct.LOGGER_NAME)
+    
     # ファイルの拡張子を取得
     file_extension = os.path.splitext(path)[1]
     # ファイル名（拡張子を含む）を取得
@@ -213,10 +283,22 @@ def file_load(path, docs_all):
 
     # 想定していたファイル形式の場合のみ読み込む
     if file_extension in ct.SUPPORTED_EXTENSIONS:
-        # ファイルの拡張子に合ったdata loaderを使ってデータ読み込み
-        loader = ct.SUPPORTED_EXTENSIONS[file_extension](path)
-        docs = loader.load()
-        docs_all.extend(docs)
+        try:
+            # 社員名簿.csvの場合は特別処理
+            if file_name == "社員名簿.csv":
+                docs = load_employee_csv(path)
+                docs_all.extend(docs)
+                logger.info(f"社員名簿CSVファイル読み込み成功（部署別統合）: {path}")
+            else:
+                # ファイルの拡張子に合ったdata loaderを使ってデータ読み込み
+                loader = ct.SUPPORTED_EXTENSIONS[file_extension](path)
+                docs = loader.load()
+                docs_all.extend(docs)
+                logger.info(f"ファイル読み込み成功: {path}")
+        except Exception as e:
+            logger.error(f"ファイル読み込み失敗: {path}, エラー: {str(e)}")
+    else:
+        logger.info(f"サポート対象外の拡張子: {path}")
 
 
 def adjust_string(s):
