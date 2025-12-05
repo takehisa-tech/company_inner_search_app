@@ -41,13 +41,11 @@ def display_select_mode():
         
         st.markdown("**【「社内文書検索」を選択した場合】**")
         st.info("入力内容と関連性が高い社内文書のありかを検索できます。")
-        st.markdown("**【入力例】**")
-        st.code("社員の育成方針に関するMTGの議事録", language=None)
+        st.code("【入力例】\n社員の育成方針に関するMTGの議事録", language=None, wrap_lines=True)
         
         st.markdown("**【「社内問い合わせ」を選択した場合】**")
         st.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
-        st.markdown("**【入力例】**")
-        st.code("人事部に所属している従業員情報を一覧化して", language=None)
+        st.code("【入力例】\n人事部に所属している従業員情報を一覧化して", language=None, wrap_lines=True)
 
 
 def display_initial_ai_message():
@@ -56,7 +54,7 @@ def display_initial_ai_message():
     """
     with st.chat_message("assistant"):
         st.success("こんにちは。私は社内文書の情報をもとに回答する生成AIチャットボットです。サイドバーで利用目的を選択し、画面下部のチャット欄からメッセージを送信してください。")
-        st.warning("最初に入力したほうが期待する内容が得やすいです。")
+        st.warning("最初に入力したほうが期待する内容が得やすいです。", icon=ct.WARNING_ICON)
 
 
 def display_conversation_log():
