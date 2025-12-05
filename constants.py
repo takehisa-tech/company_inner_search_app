@@ -64,6 +64,8 @@ WEB_URL_LOAD_TARGETS = [
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 RETRIEVER_SEARCH_K = 5
+RETRIEVER_SEARCH_TYPE = "mmr"  # Maximum Marginal Relevance: 多様性を考慮した検索
+RETRIEVER_FETCH_K = 20  # MMR検索時に最初に取得する候補数
 
 
 # ==========================================

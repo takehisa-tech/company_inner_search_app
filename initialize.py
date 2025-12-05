@@ -112,8 +112,12 @@ def initialize_retriever():
     # RAGの参照先となるデータソースの読み込み
     docs_all = load_data_sources()
 
+    # 社員名簿由来のドキュメントと通常ドキュメントを分離
+    employee_docs = [doc for doc in docs_all if doc.metadata.get("source", "").endswith("社員名簿.csv")]
+    other_docs = [doc for doc in docs_all if not doc.metadata.get("source", "").endswith("社員名簿.csv")]
+
     # OSがWindowsの場合、Unicode正規化と、cp932（Windows用の文字コード）で表現できない文字を除去
-    for doc in docs_all:
+    for doc in other_docs:
         doc.page_content = adjust_string(doc.page_content)
         for key in doc.metadata:
             doc.metadata[key] = adjust_string(doc.metadata[key])
@@ -128,14 +132,24 @@ def initialize_retriever():
         separator="\n"
     )
 
-    # チャンク分割を実施
-    splitted_docs = text_splitter.split_documents(docs_all)
+    # 通常ドキュメントのみチャンク分割を実施
+    splitted_docs = text_splitter.split_documents(other_docs)
+    
+    # 社員名簿ドキュメントは分割せずにそのまま追加
+    all_docs = splitted_docs + employee_docs
 
     # ベクターストアの作成
-    db = Chroma.from_documents(splitted_docs, embedding=embeddings)
+    db = Chroma.from_documents(all_docs, embedding=embeddings)
 
     # ベクターストアを検索するRetrieverの作成
-    st.session_state.retriever = db.as_retriever(search_kwargs={"k": ct.RETRIEVER_SEARCH_K})
+    # MMR (Maximum Marginal Relevance)を使用して多様性のある検索結果を取得
+    st.session_state.retriever = db.as_retriever(
+        search_type=ct.RETRIEVER_SEARCH_TYPE,
+        search_kwargs={
+            "k": ct.RETRIEVER_SEARCH_K,
+            "fetch_k": ct.RETRIEVER_FETCH_K
+        }
+    )
 
 def initialize_session_state():
     """
@@ -229,12 +243,17 @@ def load_employee_csv(path):
     docs = []
     for department, employees in department_dict.items():
         # 部署の従業員情報を整形したテキストを作成
-        content_lines = [f"【{department}の従業員一覧】\n"]
-        content_lines.append(f"{department}には{len(employees)}名の従業員が所属しています。\n")
+        content_lines = [
+            f"【{department}の従業員一覧・社員名簿】\n\n",
+            f"この資料は{department}に所属する従業員の情報です。\n",
+            f"{department}には合計{len(employees)}名の従業員が所属しています。\n",
+            f"以下に{department}所属の全従業員の詳細情報を記載します。\n\n"
+        ]
         
-        for emp in employees:
+        for i, emp in enumerate(employees, 1):
             emp_info = (
-                f"\n社員ID: {emp.get('社員ID', '')}\n"
+                f"【従業員{i}人目】\n"
+                f"社員ID: {emp.get('社員ID', '')}\n"
                 f"氏名: {emp.get('氏名(フルネーム)', emp.get('氏名（フルネーム）', ''))}\n"
                 f"性別: {emp.get('性別', '')}\n"
                 f"年齢: {emp.get('年齢', '')}歳\n"
@@ -247,6 +266,7 @@ def load_employee_csv(path):
                 f"保有資格: {emp.get('保有資格', '')}\n"
                 f"大学名: {emp.get('大学名', '')}\n"
                 f"学部・学科: {emp.get('学部・学科', '')}\n"
+                f"\n"
             )
             content_lines.append(emp_info)
         
