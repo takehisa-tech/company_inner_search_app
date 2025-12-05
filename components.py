@@ -41,11 +41,11 @@ def display_select_mode():
         
         st.markdown("**【「社内文書検索」を選択した場合】**")
         st.info("入力内容と関連性が高い社内文書のありかを検索できます。")
-        st.markdown('<div style="background-color: white; padding: 8px; border-radius: 5px;"><strong>【入力例】</strong><br><strong>社員の育成方針に関するMTGの議事録</strong></div>', unsafe_allow_html=True)
+        st.markdown('<div style="background-color: white; padding: 8px; border-radius: 3px;"><strong>【入力例】</strong><br><strong>社員の育成方針に関するMTGの議事録</strong></div>', unsafe_allow_html=True)
         
         st.markdown("**【「社内問い合わせ」を選択した場合】**")
         st.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
-        st.markdown('<div style="background-color: white; padding: 8px; border-radius: 5px;"><strong>【入力例】</strong><br><strong>人事部に所属している従業員情報を一覧化して</strong></div>', unsafe_allow_html=True)
+        st.markdown('<div style="background-color: white; padding: 8px; border-radius: 3px;"><strong>【入力例】</strong><br><strong>人事部に所属している従業員情報を一覧化して</strong></div>', unsafe_allow_html=True)
 
 
 def display_initial_ai_message():
