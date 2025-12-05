@@ -36,19 +36,18 @@ def display_select_mode():
             label_visibility="collapsed"
         )
         
-        # 選択されたモードに応じた説明を表示
+        # 両方のモードの説明を常に表示
         st.markdown("---")  # 区切り線
         
-        if st.session_state.mode == ct.ANSWER_MODE_1:
-            st.markdown("**【「社内文書検索」を選択した場合】**")
-            st.info("入力内容と関連性が高い社内文書のありかを検索できます。")
-            st.markdown("**【入力例】**")
-            st.code("社員の育成方針に関するMTGの議事録", language=None)
-        else:
-            st.markdown("**【「社内問い合わせ」を選択した場合】**")
-            st.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
-            st.markdown("**【入力例】**")
-            st.code("人事部に所属している従業員情報を一覧化して", language=None)
+        st.markdown("**【「社内文書検索」を選択した場合】**")
+        st.info("入力内容と関連性が高い社内文書のありかを検索できます。")
+        st.markdown("**【入力例】**")
+        st.code("社員の育成方針に関するMTGの議事録", language=None)
+        
+        st.markdown("**【「社内問い合わせ」を選択した場合】**")
+        st.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
+        st.markdown("**【入力例】**")
+        st.code("人事部に所属している従業員情報を一覧化して", language=None)
 
 
 def display_initial_ai_message():
