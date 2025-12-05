@@ -110,6 +110,18 @@ def get_llm_response(chat_message):
 
     # LLMへのリクエストとレスポンス取得
     llm_response = chain.invoke({"input": chat_message, "chat_history": st.session_state.chat_history})
+    
+    # デバッグ用：検索されたドキュメント情報をログ出力
+    import logging
+    logger = logging.getLogger(ct.LOGGER_NAME)
+    if "context" in llm_response:
+        logger.info(f"検索されたドキュメント数: {len(llm_response['context'])}")
+        for i, doc in enumerate(llm_response['context'], 1):
+            source = doc.metadata.get('source', '不明')
+            department = doc.metadata.get('department', '')
+            content_preview = doc.page_content[:200].replace('\n', ' ')
+            logger.info(f"ドキュメント{i}: source={source}, department={department}, content={content_preview}...")
+    
     # LLMレスポンスを会話履歴に追加
     st.session_state.chat_history.extend([HumanMessage(content=chat_message), llm_response["answer"]])
 

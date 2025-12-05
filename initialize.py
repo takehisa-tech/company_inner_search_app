@@ -147,7 +147,8 @@ def initialize_retriever():
         search_type=ct.RETRIEVER_SEARCH_TYPE,
         search_kwargs={
             "k": ct.RETRIEVER_SEARCH_K,
-            "fetch_k": ct.RETRIEVER_FETCH_K
+            "fetch_k": ct.RETRIEVER_FETCH_K,
+            "lambda_mult": ct.RETRIEVER_LAMBDA_MULT
         }
     )
 
