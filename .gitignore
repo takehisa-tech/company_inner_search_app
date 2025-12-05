@@ -199,11 +199,13 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-<<<<<<< HEAD
 # original
 .chroma/
 logs/
-=======
+
+# Streamlit secrets (contains API keys)
+.streamlit/secrets.toml
+
 # Abstra
 # Abstra is an AI-powered process automation framework.
 # Ignore directories containing user credentials, local state, and settings.
@@ -234,4 +236,3 @@ logs/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
->>>>>>> 278600f5aa8f924b6802470de40c9498b932577e
