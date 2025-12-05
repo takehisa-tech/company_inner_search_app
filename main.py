@@ -40,10 +40,13 @@ try:
     # 初期化処理（「initialize.py」の「initialize」関数を実行）
     initialize()
 except Exception as e:
-    # エラーログの出力
-    logger.error(f"{ct.INITIALIZE_ERROR_MESSAGE}\n{e}")
+    # エラーログの出力（詳細情報を含める）
+    import traceback
+    error_details = traceback.format_exc()
+    logger.error(f"{ct.INITIALIZE_ERROR_MESSAGE}\n{e}\n詳細:\n{error_details}")
     # エラーメッセージの画面表示
     st.error(utils.build_error_message(ct.INITIALIZE_ERROR_MESSAGE), icon=ct.ERROR_ICON)
+    st.error(f"エラー詳細: {str(e)}")
     # 後続の処理を中断
     st.stop()
 
